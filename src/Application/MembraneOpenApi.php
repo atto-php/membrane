@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Atto\Membrane\Application;
 
+use Atto\Framework\Application\ApplicationInterface;
 use Atto\Framework\Response\Builder;
 use Atto\Membrane\OperationManager;
 use Atto\Membrane\RequestParser;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Psr\Container\ContainerInterface;
 
-final class MembraneOpenApi
+final class MembraneOpenApi implements ApplicationInterface
 {
     public function __construct(
         private ContainerInterface $container,
