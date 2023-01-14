@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Atto\Membrane;
+namespace Atto\Membrane\Application;
 
 use Atto\Framework\Response\Builder;
+use Atto\Membrane\OperationManager;
+use Atto\Membrane\RequestParser;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Psr\Container\ContainerInterface;
 

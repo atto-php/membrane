@@ -6,6 +6,7 @@ namespace Atto\Membrane;
 
 use Atto\Framework\Module\ModuleInterface;
 use Atto\Framework\Response\Builder;
+use Atto\Membrane\Application\MembraneOpenApi;
 use Membrane\Membrane;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
