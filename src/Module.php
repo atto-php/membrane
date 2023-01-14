@@ -30,10 +30,12 @@ final class Module implements ModuleInterface
                 ]
             ],
             RequestParser::class => [
-                ServerRequestCreator::class,
-                OperationManager::class,
-                Membrane::class,
-                'config.membrane.openAPISpec'
+                'args' => [
+                    ServerRequestCreator::class,
+                    OperationManager::class,
+                    Membrane::class,
+                    'config.membrane.openAPISpec'
+                ]
             ],
             ServerRequestCreator::class => [
                 'args' => [
