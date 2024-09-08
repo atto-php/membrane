@@ -29,9 +29,11 @@ final class RequestParser
         $serverRequest = $this->requestCreator->fromGlobals();
 
         $requestSpec = Request::fromPsr7($this->openAPISpec, $serverRequest);
-        $this->operation = $requestSpec->pathItem->getOperations()[strtolower($serverRequest->getMethod())]->operationId;
 
-        $specifications = [$requestSpec];
+        $result = $this->membrane->process($serverRequest, $requestSpec);
+        $this->operation = $result['request']['operationId'];
+
+        $specifications = [];
 
         if ($this->operationManager->usesFlattener($this->operation)) {
             $specifications[] = new ClassWithAttributes($this->operationManager->flattener($this->operation));
@@ -39,7 +41,7 @@ final class RequestParser
 
         $specifications[] = new ClassWithAttributes($this->operationManager->dto($this->operation));
 
-        $this->result = $this->membrane->process($serverRequest, ...$specifications);
+        $this->result = $this->membrane->process($result->value, ...$specifications);
 
         if (!$this->result->isValid()) {
             throw InvalidRequest::fromResult($this->result, $this->operation);
