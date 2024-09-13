@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Atto\Membrane;
 
-use Heard\Framework\Exception\InvalidRequest;
+use Atto\Membrane\Exception\InvalidRequest;
 use Membrane\Attribute\ClassWithAttributes;
 use Membrane\Membrane;
 use Membrane\OpenAPI\Specification\Request;
@@ -31,7 +31,11 @@ final class RequestParser
         $requestSpec = Request::fromPsr7($this->openAPISpec, $serverRequest);
 
         $result = $this->membrane->process($serverRequest, $requestSpec);
-        $this->operation = $result['request']['operationId'];
+        $this->operation = $result->value['request']['operationId'];
+
+        if (!$result->isValid()) {
+            throw InvalidRequest::fromResult($result, $this->operation);
+        }
 
         $specifications = [];
 

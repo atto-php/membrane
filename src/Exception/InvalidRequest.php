@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Heard\Framework\Exception;
+namespace Atto\Membrane\Exception;
 
 use Atto\Framework\Response\Errors\HasApiProblem;
 use Membrane\Renderer\JsonFlat;
