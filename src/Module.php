@@ -47,7 +47,10 @@ final class Module implements ModuleInterface
                     Psr17Factory::class,
                 ]
             ],
-            Membrane::class => [],
+            Membrane::class => [
+                'factory' => new MembraneFactory(),
+                'args' => ['config.membrane']
+            ],
             RequestProblemHandler::class => [
                 'tags' => [
                     ErrorHandler::class
