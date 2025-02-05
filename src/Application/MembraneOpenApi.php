@@ -8,6 +8,7 @@ use Atto\Framework\Application\ApplicationInterface;
 use Atto\Framework\Response\Builder;
 use Atto\Membrane\OperationManager;
 use Atto\Membrane\RequestParser;
+use Atto\Psr7\ResponseEmitter;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Psr\Container\ContainerInterface;
 
@@ -17,7 +18,8 @@ final class MembraneOpenApi implements ApplicationInterface
         private ContainerInterface $container,
         private OperationManager $operationManager,
         private Builder $responseBuilder,
-        private RequestParser $requestParser
+        private RequestParser $requestParser,
+        private ResponseEmitter $responseEmitter,
     ) {
     }
 
@@ -33,6 +35,6 @@ final class MembraneOpenApi implements ApplicationInterface
         } catch (\Throwable $result) {
         }
 
-        (new SapiEmitter())->emit($this->responseBuilder->buildResponse($result));
+        $this->responseEmitter->emit($this->responseBuilder->buildResponse($result));
     }
 }

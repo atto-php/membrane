@@ -10,6 +10,7 @@ use Membrane\Membrane;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\Result\Result;
 use Nyholm\Psr7Server\ServerRequestCreator;
+use Psr\Http\Message\ServerRequestInterface;
 
 final class RequestParser
 {
@@ -17,7 +18,7 @@ final class RequestParser
     private string $operation;
 
     public function __construct(
-        private ServerRequestCreator $requestCreator,
+        private ServerRequestInterface $request,
         private OperationManager $operationManager,
         private Membrane $membrane,
         private string $openAPISpec
@@ -26,11 +27,9 @@ final class RequestParser
 
     public function parseFromGlobals(): void
     {
-        $serverRequest = $this->requestCreator->fromGlobals();
+        $requestSpec = Request::fromPsr7($this->openAPISpec, $this->request);
 
-        $requestSpec = Request::fromPsr7($this->openAPISpec, $serverRequest);
-
-        $result = $this->membrane->process($serverRequest, $requestSpec);
+        $result = $this->membrane->process($this->request, $requestSpec);
         $this->operation = $result->value['request']['operationId'];
 
         if (!$result->isValid()) {
@@ -61,5 +60,4 @@ final class RequestParser
     {
         return $this->operation;
     }
-
 }

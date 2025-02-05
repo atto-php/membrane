@@ -8,10 +8,10 @@ use Atto\Framework\Module\ModuleInterface;
 use Atto\Framework\Response\Builder;
 use Atto\Framework\Response\Errors\ErrorHandler;
 use Atto\Membrane\Application\MembraneOpenApi;
+use Atto\Psr7\ResponseEmitter;
 use Membrane\Membrane;
-use Nyholm\Psr7\Factory\Psr17Factory;
-use Nyholm\Psr7Server\ServerRequestCreator;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 final class Module implements ModuleInterface
 {
@@ -23,7 +23,8 @@ final class Module implements ModuleInterface
                     ContainerInterface::class,
                     OperationManager::class,
                     Builder::class,
-                    RequestParser::class
+                    RequestParser::class,
+                    ResponseEmitter::class
                 ]
             ],
             OperationManager::class => [
@@ -33,18 +34,10 @@ final class Module implements ModuleInterface
             ],
             RequestParser::class => [
                 'args' => [
-                    ServerRequestCreator::class,
+                    ServerRequestInterface::class,
                     OperationManager::class,
                     Membrane::class,
                     'config.membrane.openAPISpec'
-                ]
-            ],
-            ServerRequestCreator::class => [
-                'args' => [
-                    Psr17Factory::class,
-                    Psr17Factory::class,
-                    Psr17Factory::class,
-                    Psr17Factory::class,
                 ]
             ],
             Membrane::class => [
