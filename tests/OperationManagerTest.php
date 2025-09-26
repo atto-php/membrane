@@ -134,15 +134,6 @@ final class OperationManagerTest extends \PHPUnit\Framework\TestCase
             ]],
             'find-pet',
         ];
-        yield 'unspecified operation & default: use default' => [
-            false,
-            ['default' => [
-                'dto' => '\\MyLibrary\\DefaultDto',
-                'flattener' => Flattener::class,
-                'useFlattener' => false,
-            ]],
-            'find-pet',
-        ];
         yield 'empty operation: false uses global flattener' => [
             true,
             [
@@ -170,28 +161,11 @@ final class OperationManagerTest extends \PHPUnit\Framework\TestCase
 
         yield 'unspecified operation: fallback to specified default' => [
             false,
-            ['default' => [
-                'dto' => '\\MyLibrary\\DefaultDto',
+            ['default' => ['dto' => [
+                'class' => '\\MyLibrary\\DefaultDto',
                 'flattener' => Flattener::class,
                 'useFlattener' => false,
-            ]],
-            'find-pet',
-        ];
-
-        yield 'operation using default dto, uses default useFlattener' => [
-            true,
-            [
-                'default' => [
-                    'dto' => '\\MyLibrary\\DefaultDto',
-                    'flattener' => Flattener::class,
-                    'useFlattener' => true,
-                ],
-                'operationMap' => [
-                    'find-pet' => [
-                        'useFlattener' => false,
-                    ],
-                ],
-            ],
+            ]]],
             'find-pet',
         ];
 
@@ -200,9 +174,11 @@ final class OperationManagerTest extends \PHPUnit\Framework\TestCase
             [
                 'useFlattener' => false,
                 'default' => [
-                    'dto' => '\\MyLibrary\\DefaultDto',
-                    'flattener' => Flattener::class,
-                    'useFlattener' => true,
+                    'dto' => [
+                        'class' => '\\MyLibrary\\DefaultDto',
+                        'flattener' => Flattener::class,
+                        'useFlattener' => true,
+                    ],
                 ],
                 'operationMap' => [
                     'find-pet' => [
@@ -223,52 +199,56 @@ final class OperationManagerTest extends \PHPUnit\Framework\TestCase
      */
     public static function provideConfigsWithFlatteners(): \Generator
     {
-        yield 'config without operation, uses default' => [
+        yield 'config without operation, without default, uses global' => [
             Flattener::class,
-            ['default' => [
-                'dto' => '\\MyLibrary\\DefaultDto',
-                'flattener' => Flattener::class,
-            ]],
+            ['default' => ['dto' => '\\Default\\DTO']],
             'find-pet',
         ];
-        yield 'config with operation, without flattener, uses default' => [
-            Flattener::class,
+        yield 'config with operation, without dto, uses default' => [
+            '\\Default\\Flattener',
             [
                 'default' => [
-                    'dto' => '\\MyLibrary\\DefaultDto',
-                    'flattener' => Flattener::class,
-                ],
-                'operationMap' => [
-                    'find-pet' => [],
+                    'dto' => [
+                        'class' => '\\Default\\DTO',
+                        'flattener' => '\\Default\\Flattener',
+                    ],
+                    'operationMap' => [
+                        'find-pet' => [],
+                    ],
                 ],
             ],
             'find-pet',
         ];
-        yield 'config with operation, with flattener, without dto, uses default' => [
+        yield 'config with operation, with dto class-string, uses global' => [
             Flattener::class,
             [
                 'default' => [
-                    'dto' => '\\MyLibrary\\DefaultDto',
-                    'flattener' => Flattener::class,
+                    'dto' => [
+                        'class' => '\\Default\\DTO',
+                        'flattener' => '\\Default\\Flattener',
+                    ],
                 ],
                 'operationMap' => [
-                    'find-pet' => ['flattener' => '\\MyLibrary\\MyFlattener']
+                    'find-pet' => ['dto' => '\\MyLibrary\\MyDto'],
                 ],
             ],
             'find-pet',
         ];
-
         yield 'config with operation, with flattener, with dto, uses flattener' => [
             '\\MyLibrary\\MyFlattener',
             [
                 'default' => [
-                    'dto' => '\\MyLibrary\\DefaultDto',
-                    'flattener' => Flattener::class,
+                    'dto' => [
+                        'class' => '\\Default\\DTO',
+                        'flattener' => '\\Default\\Flattener',
+                    ],
                 ],
                 'operationMap' => [
                     'find-pet' => [
-                        'dto' => '\\MyLibrary\\MyDto',
-                        'flattener' => '\\MyLibrary\\MyFlattener'
+                        'dto' => [
+                            'class' => '\\MyLibrary\\MyDto',
+                            'flattener' => '\\MyLibrary\\MyFlattener',
+                        ],
                     ]
                 ],
             ],

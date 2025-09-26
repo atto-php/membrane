@@ -4,89 +4,121 @@ declare(strict_types=1);
 
 namespace Atto\Membrane;
 
+use Exception;
+
+/**
+ * @phpstan-import-type DTOArray from DTOConfig
+ * @phpstan-type OperationArray array{
+ *     handler?: class-string,
+ *     dto?: class-string | DTOArray
+ * }
+ */
 final class OperationManager
 {
-    /* @var array<string, array<string, mixed>> */
-    private array $operationMap;
-
+    /** @var class-string */
+    private string $flattener;
     private bool $useFlattener;
-    private ?string $flattener;
+
+    private ?DTOConfig $defaultDto = null;
+    private ?string $defaultHandler;
+
+    /** @var array<string, DTOConfig> */
+    private array $operationDTOs = [];
+    /** @var array<string, class-string> */
+    private array $operationHandlers = [];
 
     /**
-     * @var array{
-     *    handler: ?class-string,
-     *    dto: ?class-string,
-     *    flattener: ?class-string,
-     *    useFlattener: bool,
-     * }
+     * @param array{
+     *     flattener?: class-string,
+     *     useFlattener?: bool,
+     *     default?: OperationArray,
+     *     operationMap?: array<string, OperationArray>,
+     * } $config
      */
-    private array $default;
-
-    /**
-     * @param array<string, mixed> $config
-     */
-    public function __construct(array $config)
-    {
-        $this->flattener = $config['flattener']
-            ?? Flattener::class;
-        $this->useFlattener = $config['useFlattener']
-            ?? true;
-
-        $this->default['handler'] = $config['default']['handler']
-            ?? $config['defaultHandler']
-            ?? null;
-        $this->default['dto'] = $config['default']['dto']
-            ?? $config['defaultDto']
-            ?? null;
-        $this->default['useFlattener'] = $config['default']['useFlattener']
-            ?? $config['defaultUseFlattener']
-            ?? true;
-        $this->default['flattener'] = $config['default']['flattener']
-            ?? $config['defaultFlattener']
-            ?? null;
-
-        $this->operationMap = $config['operationMap']
-            ?? [];
+    public function __construct(
+        private readonly array $config,
+    ) {
+        $this->flattener = $config['flattener'] ?? Flattener::class;
+        $this->useFlattener = $config['useFlattener'] ?? true;
+        $this->defaultHandler = $this->config['default']['handler'] ?? null;
     }
 
     public function has(string $id): bool
     {
-        return isset($this->operationMap[$id]);
+        return isset($this->config['operationMap'][$id]);
     }
 
     public function dto(string $id): string
     {
-        return $this->operationMap[$id]['dto']
-            ?? $this->default['dto']
-            ?? throw new \Exception('No DTO defined for operation ' . $id);
+        return $this->getDtoConfig($id)->dto;
     }
 
     public function usesFlattener(string $id): bool
     {
-        if ($this->dto($id) === $this->default['dto']) {
-            return $this->default['useFlattener'];
-        }
-
-        return $this->operationMap[$id]['useFlattener']
-            ?? $this->useFlattener;
+        return $this->getDtoConfig($id)->useFlattener;
     }
 
     public function flattener(string $id): string
     {
-        if ($this->dto($id) === $this->default['dto']) {
-            return $this->default['flattener']
-                ?? $this->flattener;
-        }
-
-        return $this->operationMap[$id]['flattener']
-            ?? $this->flattener;
+        return $this->getDtoConfig($id)->flattener;
     }
 
-    /* @return class-string */
+    /**
+     * @return class-string
+     * @throws \RuntimeException if operation has no defined handler
+     */
     public function handler(string $id): string
     {
-        return $this->operationMap[$id]['handler']
-            ?? $this->default['handler']
-            ?? throw new \Exception('No handler defined for operation ' . $id);
+        if (!array_key_exists($id, $this->operationHandlers)) {
+            $this->operationHandlers[$id] = $this->config['operationMap'][$id]['handler']
+                ?? $this->defaultHandler
+                ?? throw new \RuntimeException("No handler defined for operation $id");
+        }
+
+        return $this->operationHandlers[$id];
+    }
+
+    /**
+     * @throws \RuntimeException if it fails to create DTOConfig
+     */
+    private function getDtoConfig(string $id): DTOConfig
+    {
+        if (!array_key_exists($id, $this->operationDTOs)) {
+            $this->operationDTOs[$id] = (
+                isset($this->config['operationMap'][$id]['dto'])
+                    ? DTOConfig::create(
+                        $this->config['operationMap'][$id]['dto'],
+                        $this->getGlobalConfig(),
+                    ) : $this->getDefaultDtoConfig())
+                ??  throw new \RuntimeException("No DTO defined for operation $id");
+        }
+
+        return $this->operationDTOs[$id];
+    }
+
+    private function getDefaultDtoConfig(): ?DTOConfig
+    {
+        if (!isset($this->defaultDto) && isset($this->config['default']['dto'])) {
+            $this->defaultDto = DTOConfig::create(
+                $this->config['default']['dto'],
+                $this->getGlobalConfig(),
+            );
+        }
+
+        return $this->defaultDto;
+    }
+
+    /**
+     * @return array{
+     *     flattener: class-string,
+     *     useFlattener: bool,
+     * }
+     */
+    private function getGlobalConfig(): array
+    {
+        return [
+            'flattener' => $this->flattener,
+            'useFlattener' => $this->useFlattener
+        ];
     }
 }
