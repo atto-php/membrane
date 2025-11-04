@@ -26,17 +26,17 @@ final class InvalidRequest extends \RuntimeException implements HasApiProblem
         return 400;
     }
 
-    public function getType(): ?string
+    public function getType(): string
     {
         return 'about:blank';
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return 'Invalid Request';
     }
 
-    public function getDetail(): ?string
+    public function getDetail(): string
     {
         return 'The request failed to validate';
     }
