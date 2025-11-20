@@ -30,12 +30,11 @@ final class RequestParser
         $requestSpec = Request::fromPsr7($this->openAPISpec, $this->request);
 
         $result = $this->membrane->process($this->request, $requestSpec);
+        $this->operation = $result->value['request']['operationId'];
 
         if (!$result->isValid()) {
             throw InvalidRequest::fromResult($result, $this->operation);
         }
-
-        $this->operation = $result->value['request']['operationId'];
 
         $specifications = [];
 
