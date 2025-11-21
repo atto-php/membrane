@@ -7,18 +7,21 @@ namespace Atto\Membrane;
 use Atto\Framework\Response\Errors\ErrorHandler;
 use Crell\ApiProblem\ApiProblem;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPIRouter\Exception\CannotRouteRequest;
 
 final class RequestProblemHandler implements ErrorHandler
 {
     public function supports(\Throwable $throwable): bool
     {
-        return $throwable instanceof CannotProcessSpecification;
+        return $throwable instanceof CannotProcessSpecification
+            || $throwable instanceof CannotRouteRequest;
     }
 
     public function handle(\Throwable $throwable): ApiProblem
     {
         switch ($throwable->getCode()) {
             case CannotProcessSpecification::PATH_NOT_FOUND:
+            case CannotRouteRequest::NOT_FOUND:
                 $problem = new ApiProblem(
                     'Not found',
                     'about:blank',
@@ -26,7 +29,9 @@ final class RequestProblemHandler implements ErrorHandler
                 $problem->setStatus(404);
 
                 break;
+
             case CannotProcessSpecification::METHOD_NOT_FOUND:
+            case CannotRouteRequest::METHOD_NOT_ALLOWED:
                 $problem = new ApiProblem(
                     'Method unsupported',
                     'about:blank',
@@ -46,5 +51,4 @@ final class RequestProblemHandler implements ErrorHandler
 
         return $problem;
     }
-
 }

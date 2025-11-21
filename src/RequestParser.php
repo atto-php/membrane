@@ -9,7 +9,6 @@ use Membrane\Attribute\ClassWithAttributes;
 use Membrane\Membrane;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\Result\Result;
-use Nyholm\Psr7Server\ServerRequestCreator;
 use Psr\Http\Message\ServerRequestInterface;
 
 final class RequestParser
@@ -53,11 +52,13 @@ final class RequestParser
 
     public function getResult(): Result
     {
-        return $this->result;
+        return $this->result
+            ?? throw new \RuntimeException('Request must be parsed first');
     }
 
     public function getOperation(): string
     {
-        return $this->operation;
+        return $this->operation
+            ?? throw new \RuntimeException('Request must be parsed first');
     }
 }
