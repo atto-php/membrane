@@ -10,20 +10,20 @@
     }
   ],
   "require": {
-    "php": "^8.2",
-    "atto/framework": "^0.1.0",
+    "php": "^8.4",
+    "atto/framework": "^0.1.4",
     "atto/psr7-module":  "^0.1.0",
-    "crell/api-problem": "^3.6",
-    "nyholm/psr7-server": "^1",
-    "nyholm/psr7": "^1",
-    "laminas/laminas-stdlib": "^3.16",
-    "laminas/laminas-httphandlerrunner": "^2.3.0",
-    "membrane/membrane": "^0.10.0",
-    "membrane/openapi-router": "0.5.2"
+    "crell/api-problem": "^3.8.0",
+    "nyholm/psr7-server": "^1.1.0",
+    "nyholm/psr7": "^1.8.2",
+    "laminas/laminas-stdlib": "^3.21.0",
+    "laminas/laminas-httphandlerrunner": "^2.13.0",
+    "membrane/membrane": "^0.10.2",
+    "membrane/openapi-router": "^0.5.3"
   },
   "require-dev": {
-    "phpstan/phpstan": "^2.1.28",
-    "phpunit/phpunit": "^12.3.14"
+    "phpstan/phpstan": "^2.1.55",
+    "phpunit/phpunit": "^13.1.11"
   },
   "autoload": {
     "psr-4": {
